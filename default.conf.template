@@ -5,6 +5,11 @@ server {
     index index.html;
     client_max_body_size 12k;
 
+    # Re-resolve Railway private DNS after backend redeploys.
+    resolver [fd12::10] valid=1s ipv6=on;
+    resolver_timeout 3s;
+    set $patroai_backend "${BACKEND_INTERNAL_URL}";
+
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
@@ -16,18 +21,22 @@ server {
 
     location = /v1/public/chat/status {
         limit_except GET { deny all; }
-        proxy_pass ${BACKEND_INTERNAL_URL};
+
+        proxy_pass $patroai_backend$request_uri;
         proxy_set_header Host $http_host;
         proxy_set_header X-Forwarded-Proto $scheme;
+
         proxy_connect_timeout 5s;
         proxy_read_timeout 25s;
     }
 
     location = /v1/public/chat {
         limit_except POST { deny all; }
-        proxy_pass ${BACKEND_INTERNAL_URL};
+
+        proxy_pass $patroai_backend$request_uri;
         proxy_set_header Host $http_host;
         proxy_set_header X-Forwarded-Proto $scheme;
+
         proxy_connect_timeout 5s;
         proxy_read_timeout 25s;
     }
