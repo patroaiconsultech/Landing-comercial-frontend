@@ -1657,7 +1657,34 @@ es:{toggle:'✦ Pregunta a la IA',title:'Asistente PatroAI · IA',intro:'Puedo e
 };
 function render(){let t=i18n[language];open.textContent=t.toggle;$('pa-title').textContent=t.title;$('pa-intro').textContent=t.intro;$('pa-disclosure').textContent=t.disclosure;$('pa-consent-label').textContent=t.consent;$('pa-prompt').textContent=t.prompt;input.placeholder=t.placeholder;$('pa-contact').textContent=t.contact;send.textContent=t.send;close.setAttribute('aria-label',t.close);refresh();}
 function refresh(){send.disabled=busy||!available||!consent.checked||!input.value.trim();}
-function bubble(author,text){const div=document.createElement('div');div.className='pa-bubble';div.dataset.author=author;div.textContent=text;msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}
+function bubble(author,text){
+ const div=document.createElement('div');
+ div.className='pa-bubble';
+ div.dataset.author=author;
+ if(author==='assistant'){
+  // Only turn the official PatroAI WhatsApp contact into a link.
+  // Keep every other part of the model response as plain text (no innerHTML).
+  const officialWhatsApp='https://wa.me/5551989697605';
+  const contactPattern=/(?:https?:\/\/wa\.me\/5551989697605|\+?55[\s().-]*51[\s().-]*98969[\s().-]*7605)/gi;
+  let offset=0;
+  for(const match of String(text).matchAll(contactPattern)){
+   div.appendChild(document.createTextNode(text.slice(offset,match.index)));
+   const link=document.createElement('a');
+   link.className='pa-whatsapp';
+   link.href=officialWhatsApp;
+   link.target='_blank';
+   link.rel='noopener noreferrer';
+   link.textContent=i18n[language].contact;
+   div.appendChild(link);
+   offset=match.index+match[0].length;
+  }
+  div.appendChild(document.createTextNode(text.slice(offset)));
+ }else{
+  div.textContent=text;
+ }
+ msgs.appendChild(div);
+ msgs.scrollTop=msgs.scrollHeight;
+}
 function message(text){status.textContent=text||'';}
 async function check(){try{const r=await fetch('/v1/public/chat/status',{cache:'no-store',credentials:'same-origin'});const d=await r.json();available=Boolean(r.ok&&d.available);}catch(_){available=false;}if(!available)message(i18n[language].offline);refresh();}
 open.addEventListener('click',()=>{panel.hidden=!panel.hidden;open.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden){input.focus();check();}});
