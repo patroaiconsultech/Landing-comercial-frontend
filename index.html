@@ -1649,14 +1649,22 @@ const root=document.getElementById('patroai-assist');
 if(!root)return;
 const $=id=>document.getElementById(id);
 const open=$('pa-open'),close=$('pa-close'),panel=$('pa-panel'),msgs=$('pa-messages'),status=$('pa-status'),consent=$('pa-consent'),input=$('pa-message'),send=$('pa-send');
-let busy=false,available=false,history=[],language='pt';
+const MAX_CHAT_QUESTIONS=7;
+const QUESTION_COUNT_KEY='patroai_chat_completed_questions_v1';
+function readCompletedQuestions(){
+ try {
+  const n=Number(sessionStorage.getItem(QUESTION_COUNT_KEY));
+  return Number.isInteger(n)&&n>=0?Math.min(n,MAX_CHAT_QUESTIONS):0;
+ } catch(_){return 0;}
+}
+let busy=false,available=false,history=[],language='pt',answeredQuestions=readCompletedQuestions();
 const i18n={
-pt:{toggle:'✦ Pergunte à IA',title:'Assistente PatroAI · IA',intro:'Posso explicar os serviços da PatroAI e ajudar você a solicitar uma demonstração. Sou uma IA; não faço propostas comerciais vinculantes.',disclosure:'Ao enviar, o texto da conversa será processado por um provedor de IA. Não envie senhas ou dados pessoais sensíveis. Não há integração com o backend C01.',consent:'Concordo com o envio das mensagens para processamento pela IA.',prompt:'Sua pergunta',placeholder:'Como a PatroAI pode ajudar minha empresa?',contact:'Falar pelo WhatsApp',send:'Enviar',busy:'Respondendo...',offline:'IA indisponível agora. Entre em contato pelo WhatsApp.',failed:'Não foi possível obter uma resposta. Tente novamente ou fale conosco pelo WhatsApp.',privacy:'Confirme a opção de processamento de mensagens.',length:'Digite uma pergunta de até 1.200 caracteres.',welcome:'Digite sua pergunta sobre a PatroAI.',close:'Fechar assistente'},
-en:{toggle:'✦ Ask AI',title:'PatroAI Assistant · AI',intro:'I can explain PatroAI services and help you request a demo. I am an AI; I cannot make binding commercial offers.',disclosure:'Messages are sent to an AI provider for processing. Do not share passwords or sensitive personal data. No C01 backend integration.',consent:'I agree to send messages for AI processing.',prompt:'Your question',placeholder:'How can PatroAI help my company?',contact:'Contact via WhatsApp',send:'Send',busy:'Replying...',offline:'AI is unavailable. Contact us via WhatsApp.',failed:'Could not get an answer. Try again or contact us via WhatsApp.',privacy:'Please accept message processing.',length:'Enter a question under 1,200 characters.',welcome:'Ask a question about PatroAI.',close:'Close assistant'},
-es:{toggle:'✦ Pregunta a la IA',title:'Asistente PatroAI · IA',intro:'Puedo explicar los servicios PatroAI y ayudar a solicitar una demostración. Soy una IA; no realizo ofertas comerciales vinculantes.',disclosure:'Los mensajes se envían a un proveedor de IA para su procesamiento. No compartas contraseñas ni datos sensibles. Sin integración con backend C01.',consent:'Acepto enviar mensajes para procesamiento por IA.',prompt:'Tu pregunta',placeholder:'¿Cómo puede ayudar PatroAI a mi empresa?',contact:'Contactar por WhatsApp',send:'Enviar',busy:'Respondiendo...',offline:'La IA no está disponible. Contáctanos por WhatsApp.',failed:'No se pudo responder. Inténtalo de nuevo o usa WhatsApp.',privacy:'Confirma el procesamiento del mensaje.',length:'Escribe hasta 1.200 caracteres.',welcome:'Haz una pregunta sobre PatroAI.',close:'Cerrar asistente'}
+pt:{toggle:'✦ Pergunte à IA',title:'Assistente PatroAI · IA',intro:'Posso explicar os serviços da PatroAI e ajudar você a solicitar uma demonstração. Sou uma IA; não faço propostas comerciais vinculantes.',disclosure:'Ao enviar, o texto da conversa será processado por um provedor de IA. Não envie senhas ou dados pessoais sensíveis. Não há integração com o backend C01.',consent:'Concordo com o envio das mensagens para processamento pela IA.',prompt:'Sua pergunta',placeholder:'Como a PatroAI pode ajudar minha empresa?',contact:'Falar pelo WhatsApp',send:'Enviar',busy:'Respondendo...',offline:'IA indisponível agora. Entre em contato pelo WhatsApp.',failed:'Não foi possível obter uma resposta. Tente novamente ou fale conosco pelo WhatsApp.',privacy:'Confirme a opção de processamento de mensagens.',length:'Digite uma pergunta de até 1.200 caracteres.',welcome:'Digite sua pergunta sobre a PatroAI.',close:'Fechar assistente',progress:'Perguntas respondidas: {used} de 7.',finished:'Você utilizou as 7 perguntas desta conversa. Para continuar, fale com a equipe pelo WhatsApp.'},
+en:{toggle:'✦ Ask AI',title:'PatroAI Assistant · AI',intro:'I can explain PatroAI services and help you request a demo. I am an AI; I cannot make binding commercial offers.',disclosure:'Messages are sent to an AI provider for processing. Do not share passwords or sensitive personal data. No C01 backend integration.',consent:'I agree to send messages for AI processing.',prompt:'Your question',placeholder:'How can PatroAI help my company?',contact:'Contact via WhatsApp',send:'Send',busy:'Replying...',offline:'AI is unavailable. Contact us via WhatsApp.',failed:'Could not get an answer. Try again or contact us via WhatsApp.',privacy:'Please accept message processing.',length:'Enter a question under 1,200 characters.',welcome:'Ask a question about PatroAI.',close:'Close assistant',progress:'Questions answered: {used} of 7.',finished:'You have used the 7 questions in this conversation. Contact the team via WhatsApp to continue.'},
+es:{toggle:'✦ Pregunta a la IA',title:'Asistente PatroAI · IA',intro:'Puedo explicar los servicios PatroAI y ayudar a solicitar una demostración. Soy una IA; no realizo ofertas comerciales vinculantes.',disclosure:'Los mensajes se envían a un proveedor de IA para su procesamiento. No compartas contraseñas ni datos sensibles. Sin integración con backend C01.',consent:'Acepto enviar mensajes para procesamiento por IA.',prompt:'Tu pregunta',placeholder:'¿Cómo puede ayudar PatroAI a mi empresa?',contact:'Contactar por WhatsApp',send:'Enviar',busy:'Respondiendo...',offline:'La IA no está disponible. Contáctanos por WhatsApp.',failed:'No se pudo responder. Inténtalo de nuevo o usa WhatsApp.',privacy:'Confirma el procesamiento del mensaje.',length:'Escribe hasta 1.200 caracteres.',welcome:'Haz una pregunta sobre PatroAI.',close:'Cerrar asistente',progress:'Preguntas respondidas: {used} de 7.',finished:'Has utilizado las 7 preguntas de esta conversación. Para continuar, contacta al equipo por WhatsApp.'}
 };
-function render(){let t=i18n[language];open.textContent=t.toggle;$('pa-title').textContent=t.title;$('pa-intro').textContent=t.intro;$('pa-disclosure').textContent=t.disclosure;$('pa-consent-label').textContent=t.consent;$('pa-prompt').textContent=t.prompt;input.placeholder=t.placeholder;$('pa-contact').textContent=t.contact;send.textContent=t.send;close.setAttribute('aria-label',t.close);refresh();}
-function refresh(){send.disabled=busy||!available||!consent.checked||!input.value.trim();}
+function render(){let t=i18n[language];open.textContent=t.toggle;$('pa-title').textContent=t.title;$('pa-intro').textContent=t.intro;$('pa-disclosure').textContent=t.disclosure;$('pa-consent-label').textContent=t.consent;$('pa-prompt').textContent=t.prompt;input.placeholder=t.placeholder;$('pa-contact').textContent=t.contact;send.textContent=t.send;close.setAttribute('aria-label',t.close);refresh();if(answeredQuestions>=MAX_CHAT_QUESTIONS)message(t.finished);}
+function refresh(){send.disabled=busy||!available||!consent.checked||!input.value.trim()||answeredQuestions>=MAX_CHAT_QUESTIONS;}
 function bubble(author,text){
  const div=document.createElement('div');
  div.className='pa-bubble';
@@ -1686,15 +1694,16 @@ function bubble(author,text){
  msgs.scrollTop=msgs.scrollHeight;
 }
 function message(text){status.textContent=text||'';}
-async function check(){try{const r=await fetch('/v1/public/chat/status',{cache:'no-store',credentials:'same-origin'});const d=await r.json();available=Boolean(r.ok&&d.available);}catch(_){available=false;}if(!available)message(i18n[language].offline);refresh();}
+async function check(){try{const r=await fetch('/v1/public/chat/status',{cache:'no-store',credentials:'same-origin'});const d=await r.json();available=Boolean(r.ok&&d.available);}catch(_){available=false;}if(answeredQuestions>=MAX_CHAT_QUESTIONS)message(i18n[language].finished);else if(!available)message(i18n[language].offline);else message(i18n[language].progress.replace('{used}',String(answeredQuestions)));refresh();}
 open.addEventListener('click',()=>{panel.hidden=!panel.hidden;open.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden){input.focus();check();}});
 close.addEventListener('click',()=>{panel.hidden=true;open.setAttribute('aria-expanded','false');open.focus();});
 consent.addEventListener('change',refresh);input.addEventListener('input',refresh);
 input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!send.disabled)send.click();}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){close.click();}});
-document.querySelectorAll('.locale-button').forEach(el=>el.addEventListener('click',()=>{const x=el.getAttribute('data-lang');if(i18n[x]){language=x;render();if(!available)message(i18n[x].offline);}}));
+document.querySelectorAll('.locale-button').forEach(el=>el.addEventListener('click',()=>{const x=el.getAttribute('data-lang');if(i18n[x]){language=x;render();if(answeredQuestions>=MAX_CHAT_QUESTIONS)message(i18n[x].finished);else if(!available)message(i18n[x].offline);else message(i18n[x].progress.replace('{used}',String(answeredQuestions)));}}));
 send.addEventListener('click',async()=>{
  const text=input.value.trim();const t=i18n[language];
+ if(answeredQuestions>=MAX_CHAT_QUESTIONS){message(t.finished);refresh();return;}
  if(!consent.checked){message(t.privacy);return;}
  if(!text||text.length>1200){message(t.length);return;}
  if(!available||busy){message(t.offline);return;}
@@ -1706,7 +1715,10 @@ send.addEventListener('click',async()=>{
   if(!r.ok||typeof d.reply!=='string'||!d.reply.trim())throw new Error('not available');
   bubble('user',text);bubble('assistant',d.reply);
   history.push({role:'user',content:text},{role:'assistant',content:d.reply});history=history.slice(-6);
-  input.value='';message('');
+  answeredQuestions+=1;
+  try{sessionStorage.setItem(QUESTION_COUNT_KEY,String(answeredQuestions));}catch(_){/* no personal data stored; in-memory limit remains */}
+  input.value='';
+  message(answeredQuestions>=MAX_CHAT_QUESTIONS?t.finished:t.progress.replace('{used}',String(answeredQuestions)));
   // Optional UI hook only: never turn a successful chat response into a failure.
   // Event data originates in the browser and is NOT server-attested history.
   try { root.dispatchEvent(new CustomEvent('patroai:chat-turn-complete',{
