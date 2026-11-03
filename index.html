@@ -1707,10 +1707,16 @@ send.addEventListener('click',async()=>{
   bubble('user',text);bubble('assistant',d.reply);
   history.push({role:'user',content:text},{role:'assistant',content:d.reply});history=history.slice(-6);
   input.value='';message('');
+  // Optional UI hook only: never turn a successful chat response into a failure.
+  // Event data originates in the browser and is NOT server-attested history.
+  try { root.dispatchEvent(new CustomEvent('patroai:chat-turn-complete',{
+    detail:{user:text,assistant:d.reply}
+  })); } catch (_) { /* optional handoff UI must not break public chat */ }
  }catch(_){message(t.failed);}
  finally{clearTimeout(timer);busy=false;refresh();}
 });
 render();
 })();
-</script></body>
+</script><script defer src="/handoff-ui.js"></script>
+</body>
 </html>

@@ -41,6 +41,18 @@ server {
         proxy_read_timeout 25s;
     }
 
+    # REVIEW CANDIDATE ONLY. Route-specific body cap; never enlarge 12k chat limit.
+    # Handler is fail-closed until AO-01 signs off data, DB and auth gates.
+    location = /v1/public/handoffs {
+        limit_except POST { deny all; }
+        client_max_body_size 48k;
+        proxy_pass $patroai_backend$request_uri;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 25s;
+    }
+
     location / {
         try_files $uri $uri/ =404;
     }
