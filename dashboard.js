@@ -38,7 +38,14 @@
         INVALID_STATUS_TRANSITION:"Mudança de situação não permitida."
       };
       if(res.status===401 && !path.startsWith("/auth/")) showLogin();
-      throw new Error(translations[detail]||"A operação não pôde ser concluída.");
+      const message=translations[detail]||(res.status===404
+        ?"API administrativa não encontrada (404)."
+        :[502,504].includes(res.status)
+          ?"Não foi possível conectar ao backend administrativo."
+          :"A operação não pôde ser concluída.");
+      const failure=new Error(message);
+      failure.code=detail;failure.httpStatus=res.status;
+      throw failure;
     }
     return {data,etag:res.headers.get("ETag")};
   }
@@ -160,6 +167,10 @@
       const {data}=await api("/auth/session");
       state.role=data.role;state.csrf=data.csrf_token;
       showWorkspace();
-    }catch{showLogin();notice("Entre com sua conta administrativa.");}
+    }catch(err){
+      showLogin();
+      if(err.code==="UNAUTHENTICATED") notice("Entre com sua conta administrativa.");
+      else notice(err.message||"Não foi possível verificar a sessão administrativa.","error");
+    }
   })();
 })();
