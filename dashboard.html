@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="color-scheme" content="light">
+  <title>PatroAI · Painel comercial</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <script src="dashboard.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">P<span>✦</span></span><div><strong>PatroAI</strong><small>Console comercial</small></div></div>
+      <div class="section-label">ESPAÇO DE TRABALHO</div>
+      <div class="side-current">▤ <span>Atendimentos</span></div>
+      <div class="sidebar-bottom"><div class="status-dot"></div><span>Área reservada</span></div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <div class="eyebrow">GESTÃO COMERCIAL / ATENDIMENTOS</div>
+        <div class="top-actions"><span id="who" class="muted">Sessão não iniciada</span><button id="logout" class="ghost hidden" type="button">Sair</button></div>
+      </header>
+      <div class="content">
+        <section class="page-heading">
+          <div><h1>Central de atendimentos</h1><p>Solicitações compartilhadas voluntariamente com a equipe PatroAI.</p></div>
+          <span class="security-label">🔒 Acesso restrito</span>
+        </section>
+        <p id="notice" class="notice" role="status" aria-live="polite">Verificando sessão...</p>
+
+        <section id="login-panel" class="auth-card hidden" aria-labelledby="login-title">
+          <div class="auth-icon">✦</div>
+          <h2 id="login-title">Acessar o painel</h2>
+          <p>Autenticação administrativa nativa com verificação em duas etapas.</p>
+          <form id="password-form">
+            <label for="email">E-mail corporativo</label><input id="email" type="email" autocomplete="username" required maxlength="254">
+            <label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required>
+            <button type="submit" class="primary full">Continuar</button>
+          </form>
+          <form id="mfa-form" class="hidden">
+            <label for="code">Código do autenticador (6 dígitos)</label>
+            <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+            <button type="submit" class="primary full">Verificar e entrar</button>
+          </form>
+          <div class="fine">Sem cadastro público. Acesso concedido somente a operadores habilitados.</div>
+        </section>
+
+        <section id="workspace" class="hidden">
+          <div class="metrics">
+            <div class="metric"><span>Solicitações visíveis</span><strong id="stat-total">—</strong><small>Página atual da fila</small></div>
+            <div class="metric"><span>Novas</span><strong id="stat-new">—</strong><small>Aguardando análise</small></div>
+            <div class="metric"><span>Em análise</span><strong id="stat-review">—</strong><small>Em acompanhamento</small></div>
+            <div class="metric"><span>Concluídas</span><strong id="stat-closed">—</strong><small>Etapa encerrada</small></div>
+          </div>
+
+          <div class="layout">
+            <section class="panel queue">
+              <div class="panel-head">
+                <div><h2>Fila de solicitações</h2><p>Conteúdo limitado ao consentimento registrado.</p></div>
+                <button id="refresh" type="button" class="ghost">Atualizar</button>
+              </div>
+              <div class="filters">
+                <label for="filter-status">Filtrar por situação</label>
+                <select id="filter-status"><option value="">Todos</option><option value="new">Novos</option><option value="in_review">Em análise</option><option value="closed">Concluídos</option></select>
+              </div>
+              <div id="queue-list" class="queue-list" aria-live="polite"></div>
+              <div class="pager"><span id="queue-count" class="muted">0 solicitações nesta página</span><button id="next" type="button" class="ghost" disabled>Próxima página</button></div>
+            </section>
+
+            <section class="panel detail">
+              <div class="panel-head"><div><h2>Detalhes</h2><p>Leitura auditada, somente conteúdo compartilhado.</p></div></div>
+              <div id="detail-empty" class="empty-state">Selecione uma solicitação para visualizar os detalhes.</div>
+              <div id="detail-content" class="hidden">
+                <div class="detail-info"><div><label>Situação</label><strong id="detail-status"></strong></div><div><label>Recebido em</label><strong id="detail-date"></strong></div><div><label>Origem</label><strong>Enviado pelo visitante</strong></div></div>
+                <h3>Mensagens selecionadas</h3>
+                <div id="messages" class="messages"></div>
+                <h3>Preferência de contato</h3>
+                <div id="contact" class="contact"></div>
+                <div id="manager-actions" class="manager-actions hidden">
+                  <label for="new-status">Atualizar situação</label>
+                  <select id="new-status"><option value="in_review">Em análise</option><option value="closed">Concluído</option></select>
+                  <button id="save-status" class="primary" type="button">Salvar alteração</button>
+                </div>
+              </div>
+            </section>
+          </div>
+          <p class="privacy-note">As conversas foram selecionadas por visitantes e não são uma transcrição autenticada pelo servidor. As ações são auditadas.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
