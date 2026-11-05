@@ -2,7 +2,7 @@
 /* PatroAI dashboard. No raw server text is ever assigned to innerHTML. */
 (() => {
   const $ = (id) => document.getElementById(id);
-  const state = { csrf: null, role: null, challenge: null, cursor: null,
+  const state = { csrf: null, role: null, staffId: null, challenge: null, cursor: null,
                   selected: null, etag: null, status: "", rows: [] };
   const names = {new:"Novo",in_review:"Em análise",closed:"Concluído"};
   const visibility = (id,on) => $(id).classList.toggle("hidden",!on);
@@ -38,26 +38,22 @@
         INVALID_STATUS_TRANSITION:"Mudança de situação não permitida."
       };
       if(res.status===401 && !path.startsWith("/auth/")) showLogin();
-      const message=translations[detail]||(res.status===404
-        ?"API administrativa não encontrada (404)."
-        :[502,504].includes(res.status)
-          ?"Não foi possível conectar ao backend administrativo."
-          :"A operação não pôde ser concluída.");
-      const failure=new Error(message);
-      failure.code=detail;failure.httpStatus=res.status;
-      throw failure;
+      throw new Error(translations[detail]||"A operação não pôde ser concluída.");
     }
     return {data,etag:res.headers.get("ETag")};
   }
   function showLogin() {
     visibility("login-panel",true);visibility("workspace",false);visibility("logout",false);
     $("who").textContent="Sessão não iniciada";
-    state.csrf=null;state.role=null;state.selected=null;
+    state.csrf=null;state.role=null;state.staffId=null;state.selected=null;
   }
   function showWorkspace() {
     visibility("login-panel",false);visibility("workspace",true);visibility("logout",true);
-    $("who").textContent=state.role==="manager"?"Gestor autenticado":"Analista autenticado";
+    $("who").textContent=state.role==="super_admin"?"Super Admin PatroAI":
+                        state.role==="manager"?"Gestor autenticado":"Analista autenticado";
+    visibility("staff-admin", state.role==="super_admin");
     refresh();
+    if(state.role==="super_admin") loadStaff();
   }
   async function refresh(cursor=null) {
     notice("Carregando solicitações...");
@@ -116,7 +112,7 @@
       if(contact&&data.contact_preference==="email") txt="E-mail: "+contact.email+(contact.name?"\nNome: "+contact.name:"");
       if(contact&&data.contact_preference==="whatsapp") txt="WhatsApp: "+contact.phone+(contact.name?"\nNome: "+contact.name:"");
       $("contact").textContent=txt;
-      const manager=state.role==="manager" && data.status!=="closed";
+      const manager=["manager","super_admin"].includes(state.role) && data.status!=="closed";
       visibility("manager-actions",manager);
       $("new-status").replaceChildren();
       const next=data.status==="new"?"in_review":"closed";
@@ -124,6 +120,34 @@
       notice("Leitura registrada para auditoria.","success");
     }catch(e){notice(e.message,"error");}
   }
+  async function loadStaff(){
+    const target=$("staff-list");target.replaceChildren();
+    try{
+      const {data}=await api("/staff");
+      for(const account of data.items||[]){
+        const item=node("div","staff-row");
+        const descr=node("div","staff-description");
+        descr.append(node("strong","",account.email));
+        descr.append(node("div","muted",account.role+" · "+(account.active?"Ativo":"Desativado")));
+        item.append(descr);
+        if(account.active && account.staff_id!==state.staffId){
+          const action=node("button","ghost","Desativar");action.type="button";
+          action.addEventListener("click",async()=>{
+            if(!window.confirm("Desativar esta conta e revogar todas as sessões ativas?")) return;
+            try{
+              await api("/staff/"+encodeURIComponent(account.staff_id)+"/deactivate",{method:"POST"});
+              notice("Conta desativada e sessões revogadas.","success");
+              await loadStaff();
+            }catch(err){notice(err.message,"error");}
+          });
+          item.append(action);
+        }
+        target.append(item);
+      }
+      if(!(data.items||[]).length) target.append(node("div","empty-state","Nenhuma conta encontrada."));
+    }catch(err){target.append(node("div","empty-state",err.message));}
+  }
+  $("staff-refresh").addEventListener("click",loadStaff);
   $("password-form").addEventListener("submit",async e=>{
     e.preventDefault();notice("Verificando credenciais...");
     try{
@@ -140,7 +164,7 @@
       const {data}=await api("/auth/mfa",{method:"POST",body:JSON.stringify({challenge_id:state.challenge,code:$("code").value})});
       $("code").value="";state.challenge=null;state.csrf=data.csrf_token;
       const session=await api("/auth/session");
-      state.role=session.data.role;state.csrf=session.data.csrf_token;
+      state.role=session.data.role;state.staffId=session.data.staff_id;state.csrf=session.data.csrf_token;
       showWorkspace();
     }catch(err){notice(err.message,"error");}
   });
@@ -165,12 +189,8 @@
   (async()=>{
     try{
       const {data}=await api("/auth/session");
-      state.role=data.role;state.csrf=data.csrf_token;
+      state.role=data.role;state.staffId=data.staff_id;state.csrf=data.csrf_token;
       showWorkspace();
-    }catch(err){
-      showLogin();
-      if(err.code==="UNAUTHENTICATED") notice("Entre com sua conta administrativa.");
-      else notice(err.message||"Não foi possível verificar a sessão administrativa.","error");
-    }
+    }catch{showLogin();notice("Entre com sua conta administrativa.");}
   })();
 })();
