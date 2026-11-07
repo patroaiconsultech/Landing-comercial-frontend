@@ -1,0 +1,13 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "..");
+const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+const docker = fs.readFileSync(path.join(root, "Dockerfile"), "utf8");
+const asset = "hero-executivo-patroai.jpg";
+assert.ok(fs.statSync(path.join(root, asset)).size > 1000, "hero JPEG missing/empty");
+assert.match(html, /class="hero-executivo"[^>]*src="\/hero-executivo-patroai\.jpg"/);
+assert.match(html, /\.hero-visual \.hero-executivo/);
+assert.match(docker, /COPY hero-executivo-patroai\.jpg \/usr\/share\/nginx\/html\/hero-executivo-patroai\.jpg/);
+assert.doesNotMatch(html, /class="orbit-stage"/);
+console.log("PASS: hero portrait, markup, responsive styles and nginx asset");

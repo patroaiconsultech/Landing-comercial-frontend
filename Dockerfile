@@ -1,5 +1,6 @@
 FROM nginx:stable-alpine
 COPY index.html /usr/share/nginx/html/index.html
+COPY hero-executivo-patroai.jpg /usr/share/nginx/html/hero-executivo-patroai.jpg
 COPY handoff-ui.js /usr/share/nginx/html/handoff-ui.js
 COPY diagnosis-ui.js /usr/share/nginx/html/diagnosis-ui.js
 COPY dashboard.html /usr/share/nginx/html/dashboard.html
