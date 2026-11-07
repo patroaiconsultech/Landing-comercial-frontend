@@ -53,6 +53,7 @@
                         state.role==="manager"?"Gestor autenticado":"Analista autenticado";
     visibility("staff-admin", state.role==="super_admin");
     refresh();
+    refreshR3();
     if(state.role==="super_admin") loadStaff();
   }
   async function refresh(cursor=null) {
@@ -147,6 +148,101 @@
       if(!(data.items||[]).length) target.append(node("div","empty-state","Nenhuma conta encontrada."));
     }catch(err){target.append(node("div","empty-state",err.message));}
   }
+
+  /* R3-A. Separate, gated workspace; does not change R2 handoff behavior. */
+  const r3Names={
+    registered:"Cadastro iniciado",in_progress:"Em pré-diagnóstico",
+    completed:"Aguardando análise",in_review:"Em análise",
+    qualified:"Qualificado",disqualified:"Não qualificado",
+    contacted:"Contato realizado"
+  };
+  const r3Transitions={
+    completed:["in_review"],
+    in_review:["qualified","disqualified"],
+    qualified:["contacted"]
+  };
+  const r3State={offset:0,next:null,selected:null,etag:null};
+  const r3Notice=msg=>{$("diagnoses-notice").textContent=msg;};
+  async function refreshR3(offset=0){
+    r3Notice("Carregando pré-diagnósticos...");
+    try{
+      const {data}=await api("/diagnoses?limit=25&offset="+encodeURIComponent(offset));
+      r3State.offset=offset;r3State.next=data.next_offset;
+      const list=$("diagnoses-list");list.replaceChildren();
+      for(const item of data.items||[]){
+        const button=node("button","queue-item");
+        button.type="button";
+        button.append(node("strong","",r3Names[item.status]||item.status));
+        button.append(node("div","queue-meta","Pré-diagnóstico "+String(item.diagnosis_id).slice(0,8)
+                      +" · "+new Date(item.created_at).toLocaleString("pt-BR")
+                      +" · "+item.turn_count+" resposta(s)"));
+        button.addEventListener("click",()=>detailR3(item.diagnosis_id));
+        list.append(button);
+      }
+      if(!(data.items||[]).length)list.append(node("div","empty-state","Nenhum pré-diagnóstico registrado."));
+      visibility("diagnoses-next",data.next_offset!==null&&data.next_offset!==undefined);
+      r3Notice("Lista atualizada. Novos cadastros aparecem aqui mesmo antes da primeira pergunta.");
+    }catch(e){r3Notice(e.message);}
+  }
+  async function detailR3(id){
+    r3Notice("Carregando detalhes autorizados...");
+    const detail=$("diagnoses-detail");detail.replaceChildren();
+    try {
+      const {data,etag}=await api("/diagnoses/"+encodeURIComponent(id));
+      r3State.selected=id;r3State.etag=etag;
+      detail.append(node("h3","",r3Names[data.status]||data.status));
+      detail.append(node("p","muted","Identificação em "+new Date(data.created_at).toLocaleString("pt-BR")
+                    +" · Consentimento "+data.consent_version));
+      const contact=node("div","r3-contact");
+      contact.append(node("strong","",data.contact?.name||"Interessado"));
+      if(data.contact?.company)contact.append(node("p","",data.contact.company));
+      if(data.contact?.phone){
+        const number=String(data.contact.phone);
+        contact.append(node("p","",number));
+        if(/^\+[1-9][0-9]{7,14}$/.test(number)){
+          const link=node("a","","Abrir conversa no WhatsApp Business");
+          link.href="https://wa.me/"+number.slice(1);link.target="_blank";link.rel="noopener noreferrer";
+          contact.append(link);
+        }
+      }
+      detail.append(contact);
+      detail.append(node("h3","","Histórico registrado pelo servidor"));
+      for(const item of data.messages||[]){
+        const itemNode=node("div","r3-message "+(item.role==="user"?"user":"assistant"));
+        itemNode.append(node("strong","",item.role==="user"?"VISITANTE":"IA"));
+        itemNode.append(node("div","",item.content));
+        detail.append(itemNode);
+      }
+      if(!(data.messages||[]).length)
+        detail.append(node("p","muted","O visitante ainda não concluiu nenhuma resposta."));
+      const next=r3Transitions[data.status]||[];
+      if(next.length&&["manager","super_admin"].includes(state.role)){
+        const actions=node("div","r3-actions");
+        for(const status of next){
+          const button=node("button","primary",r3Names[status]);button.type="button";
+          button.addEventListener("click",async()=>{
+            button.disabled=true;
+            try{
+              await api("/diagnoses/"+encodeURIComponent(id)+"/status",{
+                method:"PATCH",headers:{"If-Match":r3State.etag},
+                body:JSON.stringify({status})
+              });
+              await refreshR3(r3State.offset);await detailR3(id);
+              r3Notice("Decisão humana registrada com auditoria.");
+            }catch(e){r3Notice(e.message);button.disabled=false;}
+          });
+          actions.append(button);
+        }
+        detail.append(actions);
+      }
+      r3Notice("Leitura de pré-diagnóstico registrada para auditoria.");
+    }catch(e){r3Notice(e.message);}
+  }
+  $("diagnoses-refresh").addEventListener("click",()=>refreshR3());
+  $("diagnoses-next").addEventListener("click",()=>{
+    if(r3State.next!==null)refreshR3(r3State.next);
+  });
+
   $("staff-refresh").addEventListener("click",loadStaff);
   $("password-form").addEventListener("submit",async e=>{
     e.preventDefault();notice("Verificando credenciais...");

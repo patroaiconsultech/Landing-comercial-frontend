@@ -85,6 +85,25 @@
               </div>
             </section>
           </div>
+          <!-- R3-A PROPOSAL_ONLY, rendered only with authenticated dashboard session -->
+          <section id="diagnoses-panel" class="panel" aria-labelledby="diagnoses-title">
+            <div class="panel-head">
+              <div><h2 id="diagnoses-title">Pré-diagnósticos com IA</h2>
+                <p>Interessados identificados desde o início. Respostas fornecidas com consentimento.</p>
+              </div>
+              <button id="diagnoses-refresh" type="button" class="ghost">Atualizar diagnósticos</button>
+            </div>
+            <p id="diagnoses-notice" class="muted" role="status" aria-live="polite">Módulo R3-A ainda não carregado.</p>
+            <div class="layout">
+              <div>
+                <div id="diagnoses-list" class="queue-list"></div>
+                <button id="diagnoses-next" type="button" class="ghost hidden">Mais diagnósticos</button>
+              </div>
+              <div id="diagnoses-detail" class="r3-detail">
+                Selecione um pré-diagnóstico para visualizar os detalhes autorizados.
+              </div>
+            </div>
+          </section>
           <section id="staff-admin" class="panel staff-admin hidden" aria-labelledby="staff-title">
             <div class="panel-head">
               <div><h2 id="staff-title">Gestão de acessos</h2>
