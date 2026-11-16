@@ -21,7 +21,7 @@
     if(options.method && options.method!=="GET" && state.csrf) headers["X-CSRF-Token"]=state.csrf;
     let res;
     try {res=await fetch("/v1/admin"+path,{credentials:"same-origin",cache:"no-store",...options,headers});}
-    catch {throw new Error("Não foi possível acessar o serviço administrativo.");}
+    catch {throw new Error("Não foi possível conectar ao backend administrativo.");}
     const data=await res.json().catch(()=>({}));
     if(!res.ok) {
       const allowed=["UNAUTHENTICATED","INVALID_CREDENTIALS","INVALID_CHALLENGE","RATE_LIMITED","ADMIN_UNAVAILABLE","FEATURE_DISABLED","FORBIDDEN","VERSION_CONFLICT","INVALID_STATUS_TRANSITION"];
@@ -31,14 +31,21 @@
         INVALID_CREDENTIALS:"Credenciais inválidas.",
         INVALID_CHALLENGE:"Código inválido ou expirado.",
         RATE_LIMITED:"Muitas tentativas. Aguarde para tentar novamente.",
-        ADMIN_UNAVAILABLE:"Painel administrativo ainda não habilitado.",
+        ADMIN_UNAVAILABLE:"Painel administrativo indisponível.",
         FEATURE_DISABLED:"Funcionalidade desabilitada.",
         FORBIDDEN:"Você não tem permissão para esta operação.",
         VERSION_CONFLICT:"Registro modificado por outra pessoa. Atualize a página.",
         INVALID_STATUS_TRANSITION:"Mudança de situação não permitida."
       };
       if(res.status===401 && !path.startsWith("/auth/")) showLogin();
-      throw new Error(translations[detail]||"A operação não pôde ser concluída.");
+      const message = res.status===403 ? translations.FORBIDDEN
+                    : res.status===404 ? "API administrativa não encontrada (404)."
+                    : res.status===502 || res.status===504 ? "Não foi possível conectar ao backend administrativo."
+                    : res.status===503 ? (translations[detail] || "Serviço administrativo indisponível.")
+                    : (translations[detail] || "A operação não pôde ser concluída.");
+      const error = new Error(message);
+      error.status = res.status;
+      throw error;
     }
     return {data,etag:res.headers.get("ETag")};
   }
@@ -287,6 +294,10 @@
       const {data}=await api("/auth/session");
       state.role=data.role;state.staffId=data.staff_id;state.csrf=data.csrf_token;
       showWorkspace();
-    }catch{showLogin();notice("Entre com sua conta administrativa.");}
+    }catch(error){
+      showLogin();
+      if(error.status===401) notice("Entre com sua conta administrativa.");
+      else notice(error.message,"error");
+    }
   })();
 })();

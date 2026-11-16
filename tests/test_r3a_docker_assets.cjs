@@ -7,7 +7,7 @@ const docker = fs.readFileSync(path.join(root, "Dockerfile"), "utf8");
 const landing = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const dashboard = fs.readFileSync(path.join(root, "dashboard.html"), "utf8");
 const assets = ["handoff-ui.js", "diagnosis-ui.js", "dashboard.js", "dashboard.css"];
-assert.ok(landing.includes('src="/diagnosis-ui.js"'), "Landing must load R3-A JS");
+assert.ok(landing.includes('src="diagnosis-ui.js"'), "Landing must load R3-A JS");
 assert.ok(dashboard.includes('src="dashboard.js"'), "Dashboard must load JS");
 for (const asset of assets) {
   assert.ok(fs.existsSync(path.join(root, asset)), "Missing source asset: "+asset);

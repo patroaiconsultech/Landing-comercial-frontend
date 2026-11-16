@@ -21,7 +21,10 @@ async function checkStartup(response, expectedMessage, expectedClass) {
       return nodes.get(id);
     },
   };
-  const fetch = async () => response;
+  const fetch = async () => {
+    if(response instanceof Error) throw response;
+    return response;
+  };
   vm.runInNewContext(JS, { document, fetch, URLSearchParams, Option: class {} });
   // Allow the async session lookup and error handling to settle.
   await new Promise((resolve) => setImmediate(resolve));
@@ -37,10 +40,20 @@ async function checkStartup(response, expectedMessage, expectedClass) {
   await checkStartup(reply(401, "UNAUTHENTICATED"),
     "Entre com sua conta administrativa.", "notice");
   await checkStartup(reply(503, "ADMIN_UNAVAILABLE"),
-    "Painel administrativo ainda não habilitado.", "notice error");
+    "Painel administrativo indisponível.", "notice error");
+  await checkStartup(reply(403, "FORBIDDEN"),
+    "Você não tem permissão para esta operação.", "notice error");
+  await checkStartup(reply(403, undefined),
+    "Você não tem permissão para esta operação.", "notice error");
+  await checkStartup(reply(503, undefined),
+    "Serviço administrativo indisponível.", "notice error");
   await checkStartup(reply(404, "Not Found"),
     "API administrativa não encontrada (404).", "notice error");
   await checkStartup(reply(502, undefined),
     "Não foi possível conectar ao backend administrativo.", "notice error");
-  console.log("PASS: dashboard startup comunica corretamente 401/404/502/503.");
+  await checkStartup(reply(504, undefined),
+    "Não foi possível conectar ao backend administrativo.", "notice error");
+  await checkStartup(new Error("Falha simulada de rede"),
+    "Não foi possível conectar ao backend administrativo.", "notice error");
+  console.log("PASS: dashboard startup distingue 401/403/404/502/503/504/rede.");
 })().catch((error) => { console.error(error); process.exitCode = 1; });
