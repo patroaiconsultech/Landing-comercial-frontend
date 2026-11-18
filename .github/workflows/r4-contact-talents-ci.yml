@@ -1,0 +1,73 @@
+name: PATROAI R4 - Contact and Talents
+
+on:
+  push:
+    branches:
+      - feat/patroai-r4-contact-talents
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-r4:
+    name: Integrity, frontend tests and Docker build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Verify frozen product and tracked inventory
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import subprocess
+
+          manifest = Path("SHA256SUMS.txt").read_bytes()
+          assert hashlib.sha256(manifest).hexdigest() == "4f80d8aaff0c4d84644a92c9bd900457b610e5e320cab935a99921e127ea8f45", "Candidate manifest mismatch"
+          entries = dict((name, digest) for digest, name in (line.split(maxsplit=1) for line in manifest.decode().splitlines()))
+          assert len(entries) == 59
+          expected = set(entries) | {"SHA256SUMS.txt", ".github/workflows/signature-r32-ci.yml", ".github/workflows/r4-contact-talents-ci.yml"}
+          actual = set(subprocess.check_output(["git", "ls-files", "-z"]).decode().rstrip(chr(0)).split(chr(0)))
+          assert actual == expected, f"Unexpected: {actual-expected}; missing: {expected-actual}"
+          for name, digest in entries.items():
+              path = Path(name)
+              assert path.is_file() and not path.is_symlink(), name
+              assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, name
+          assert hashlib.sha256(Path(".github/workflows/signature-r32-ci.yml").read_bytes()).hexdigest() == "29a934f3d5199b76ce81b6f6ab21f0214de0d2ad43560d12695dd57c78537325", "Original workflow mismatch"
+          print("PASS: 60 product files + 2 CI workflows")
+          PY
+
+      - name: Run Node contract tests
+        shell: bash
+        run: node --test tests/test_*.cjs
+
+      - name: Install focused Python test dependencies
+        run: python -m pip install "pytest>=8,<10" "Pillow>=10,<13"
+
+      - name: Run focused Python frontend tests
+        run: >-
+          python -m pytest -q -ra
+          tests/test_public_seo_build.py
+          tests/test_decodificacao_imagens.py
+          tests/test_signature_visual_r1.py
+          tests/test_signature_cinematic_r2.py
+          tests/test_signature_experience_r3.py
+          tests/test_signature_refinement_r31.py
+
+      - name: Build Docker image locally (no push or deploy)
+        run: docker build --tag patroai-r4-contact-talents:ci .
