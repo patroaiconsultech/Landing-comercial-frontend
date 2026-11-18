@@ -1059,6 +1059,31 @@ header .menu-button{flex:0 0 44px;width:44px;height:44px}
   #signature-solutions .signature-card { transition:none!important;transform:none!important; }
 }
 </style>
+<style id="r4-contact-talents-css">
+/* R4: isolated manual contact; keep original public submission gate closed. */
+#talentos{scroll-margin-top:120px}
+#talentos .p21-card{min-width:0;border-color:#34585b}
+.r4-compose{width:100%;min-width:0;margin-top:16px;border:1px solid #42605f;border-radius:9px;background:#0a1b20;color:#f5f3ed}
+.r4-compose summary{padding:14px;cursor:pointer;color:#edc982;font-weight:700;min-height:44px;overflow-wrap:anywhere}
+.r4-compose-body{padding:0 14px 14px;display:grid;gap:10px}
+.r4-compose label{font-size:13px;font-weight:650;color:#f5f3ed}
+.r4-compose textarea{display:block;width:100%;min-width:0;background:#061114;color:#f5f3ed;border:1px solid #607c79;border-radius:6px;padding:10px;resize:vertical;font:inherit;font-size:14px}
+.r4-compose p{margin:0!important;font-size:12px!important;line-height:1.65;color:#c5d6ce}
+.r4-compose .r4-privacy{font-size:12px;text-decoration:underline;color:#f0d4a0}
+.r4-compose-actions{display:flex;flex-wrap:wrap;gap:8px}
+.r4-compose-actions .btn{min-height:44px;padding:9px 12px;white-space:normal;text-align:center}
+.r4-compose-actions button:disabled{opacity:.55;cursor:not-allowed}
+.r4-compose summary:focus-visible,.r4-compose textarea:focus-visible,.r4-compose a:focus-visible,.r4-compose button:focus-visible{outline:2px solid #edc982;outline-offset:3px}
+@media(min-width:1221px){header .navlinks{gap:clamp(8px,1vw,16px)}}
+@media(min-width:901px) and (max-width:1220px){
+ header .navlinks{display:none}
+ header .menu-button{display:flex;flex:0 0 44px}
+ header .navlinks.open{display:flex;position:absolute;top:100%;left:0;right:0;background:#0a171a;padding:20px;flex-direction:column;align-items:stretch;max-height:70vh;overflow:auto}
+ header .navlinks.open a{font-size:13px;padding:12px;border-bottom:1px solid var(--line)}
+}
+@media(max-width:420px){.r4-compose-actions .btn{width:100%}}
+@media(prefers-reduced-motion:reduce){.r4-compose *{transition:none!important;animation:none!important}}
+</style>
 </head>
 <body>
 <!-- DG-01 V10 | experiência de entrada, blog nativo, diagnóstico e privacidade — prévia -->
@@ -1098,6 +1123,7 @@ header .menu-button{flex:0 0 44px;width:44px;height:44px}
 <a data-p22="navMethod" href="#metodo">Metodologia</a>
 <a href="#institucional">Institucional</a>
 <!-- DG-01 PROPOSAL_ONLY: menu link to unavailable consultation journey excluded -->
+<a href="#talentos" data-r4-text="nav">Carreiras</a>
 <a href="#contato">Contato</a>
 </nav><div aria-label="Idioma da página" class="locale-switch" role="group">
 <button aria-label="Português" aria-pressed="true" class="locale-button selected" data-lang="pt" type="button">PT</button>
@@ -1612,29 +1638,52 @@ header .menu-button{flex:0 0 44px;width:44px;height:44px}
 </div>
 </section>
 
-<section class="p21-talent" id="talentos" aria-labelledby="p21-title" hidden inert aria-hidden="true">
+<section class="p21-talent" id="talentos" aria-labelledby="p21-title" tabindex="-1">
  <div class="p21-wrap">
-  <p class="p21-eyebrow" data-p21="eyebrow">PatroAI · Carreiras e Consultoria</p>
-  <h2 id="p21-title" data-p21="title">Pessoas e especialistas que transformam tecnologia em resultados.</h2>
-  <p data-p21="intro">Queremos construir uma rede de profissionais que compartilham nosso compromisso com tecnologia responsável, excelência e resultados empresariais.</p>
+  <p class="p21-eyebrow" data-r4-text="eyebrow">PatroAI · Carreiras e Consultoria</p>
+  <h2 id="p21-title" data-r4-text="title">Pessoas e especialistas que transformam tecnologia em resultados.</h2>
+  <p data-r4-text="intro">Queremos construir uma rede de profissionais que compartilham nosso compromisso com tecnologia responsável, excelência e resultados empresariais.</p>
   <div class="p21-cards">
    <article class="p21-card">
-    <h3 data-p21="careerTitle">Carreiras e colaboradores</h3>
-    <p data-p21="careerText">Profissionais de engenharia, produto, operações e relacionamento que desejam construir a próxima geração de soluções empresariais.</p>
-    <button type="button" data-p21-open="career" data-p21="careerAction">Candidatar-me à PatroAI →</button>
+    <h3 data-r4-text="careerTitle">Carreiras e colaboradores</h3>
+    <p data-r4-text="careerText">Profissionais de engenharia, produto, operações e relacionamento que desejam construir a próxima geração de soluções empresariais.</p>
+    <details class="r4-compose" data-r4-journey="career">
+ <summary data-r4-text="career">Apresentar candidatura</summary>
+ <div class="r4-compose-body">
+  <label for="r4-career-message" data-r4-text="message">Mensagem (edite se desejar)</label>
+  <textarea id="r4-career-message" maxlength="800" rows="4" autocomplete="off" spellcheck="false">Olá, PatroAI! Gostaria de conhecer as oportunidades de carreira. Minha área de atuação é: </textarea>
+  <p data-r4-text="hint">O texto fica somente nesta página até você copiar. Abra o WhatsApp e confirme o envio por lá. Não inclua dados sensíveis, documentos ou informações confidenciais.</p>
+  <p data-r4-text="careerHint">Solicite à equipe o canal autorizado para enviar seu currículo. Nenhum arquivo é enviado por esta página.</p>
+  <a href="#privacidade-lgpd" class="r4-privacy" data-r4-text="privacy">Privacidade e LGPD</a>
+  <div class="r4-compose-actions">
+   <button type="button" data-r4-copy disabled class="btn btn-primary" data-r4-text="copy">Copiar mensagem</button>
+   <a href="https://wa.me/5551989697605" target="_blank" rel="noopener noreferrer" class="btn btn-outline" data-r4-text="open">Abrir WhatsApp</a>
+  </div>
+  <p role="status" aria-live="polite" data-r4-status>Nenhum envio automático ou armazenamento pela landing.</p>
+ </div>
+</details>
    </article>
    <article class="p21-card">
-    <h3 data-p21="consultantTitle">Consultores independentes</h3>
-    <p data-p21="consultantText">Especialistas de negócios e tecnologia para apoiar diagnóstico, implantação e adoção de soluções da PatroAI nas empresas, mediante seleção e autorização.</p>
-    <button type="button" data-p21-open="consultant" data-p21="consultantAction">Quero ser consultor associado →</button>
+    <h3 data-r4-text="consultantTitle">Consultores independentes</h3>
+    <p data-r4-text="consultantText">Especialistas de negócios e tecnologia para apoiar diagnóstico, implantação e adoção de soluções da PatroAI nas empresas, mediante seleção e autorização.</p>
+    <details class="r4-compose" data-r4-journey="consultant">
+ <summary data-r4-text="consultant">Apresentar perfil de consultoria</summary>
+ <div class="r4-compose-body">
+  <label for="r4-consultant-message" data-r4-text="message">Mensagem (edite se desejar)</label>
+  <textarea id="r4-consultant-message" maxlength="800" rows="4" autocomplete="off" spellcheck="false">Olá, PatroAI! Gostaria de conhecer a possibilidade de atuar como consultor associado. Minha especialidade é: </textarea>
+  <p data-r4-text="hint">O texto fica somente nesta página até você copiar. Abra o WhatsApp e confirme o envio por lá. Não inclua dados sensíveis, documentos ou informações confidenciais.</p>
+  <p data-r4-text="careerHint">Solicite à equipe o canal autorizado para enviar seu currículo. Nenhum arquivo é enviado por esta página.</p>
+  <a href="#privacidade-lgpd" class="r4-privacy" data-r4-text="privacy">Privacidade e LGPD</a>
+  <div class="r4-compose-actions">
+   <button type="button" data-r4-copy disabled class="btn btn-primary" data-r4-text="copy">Copiar mensagem</button>
+   <a href="https://wa.me/5551989697605" target="_blank" rel="noopener noreferrer" class="btn btn-outline" data-r4-text="open">Abrir WhatsApp</a>
+  </div>
+  <p role="status" aria-live="polite" data-r4-status>Nenhum envio automático ou armazenamento pela landing.</p>
+ </div>
+</details>
    </article>
   </div>
-  <div class="p21-form-area" id="p21-form-area" hidden>
-   <h3 id="p21-form-title" data-p21="formTitle">Sua candidatura</h3>
-   <p data-p21="formIntro">Preencha seus dados e anexe seu currículo. Este formulário é uma prévia; a conexão real depende de homologação.</p>
-   <!-- DG-01 PROPOSAL_ONLY F02: legacy form physically excluded from static commercial release. -->
-   <p class="p21-service-note" data-p21="disclaimer">A candidatura não cria conta, vínculo empregatício ou permissão de acesso à plataforma. A seleção é realizada separadamente pela PatroAI.</p>
-  </div>
+  <p class="p21-service-note" data-r4-text="disclaimer">A manifestação de interesse não cria conta, vínculo empregatício ou permissão de acesso. A seleção é realizada separadamente pela PatroAI.</p>
  </div>
 </section>
 
@@ -1652,7 +1701,22 @@ header .menu-button{flex:0 0 44px;width:44px;height:44px}
 </div>
 <div class="form-card" data-reveal="">
 <div class="form-top"><h3 data-p22="formTitle">Solicite sua demonstração</h3><span class="pill">Prévia visual</span></div>
-<div class="patro-comercial-contact" role="group" aria-label="Solicitar demonstração comercial"><p class="muted" style="font-size:14px">Fale com nossa equipe sobre planejamento estratégico, estudos de viabilidade, startups, tecnologia de IA e gestão empresarial.</p><a class="btn btn-primary form-action" data-patroai-sales-link="whatsapp" href="https://wa.me/5551989697605?text=Ol%C3%A1%2C%20PatroAI%21%20Gostaria%20de%20agendar%20uma%20demonstra%C3%A7%C3%A3o%20de%20plataforma%20multiag%C3%AAntica%20orquestrada%20e%20conhecer%20as%20possibilidades%20de%20integra%C3%A7%C3%A3o%20com%20os%20sistemas%20da%20minha%20empresa." target="_blank" rel="noopener noreferrer" data-p22="whatsappCTA">Solicitar demonstração pelo WhatsApp</a><p class="form-disclaimer" data-p22="whatsappNote">O WhatsApp será aberto para você confirmar o envio. Esta página não agenda automaticamente nem grava contatos no C01.</p></div><!-- DG-01 PROPOSAL_ONLY F01: legacy form physically excluded from static commercial release. -->
+<div class="patro-comercial-contact" role="group" aria-label="Solicitar demonstração comercial"><p class="muted" style="font-size:14px">Fale com nossa equipe sobre planejamento estratégico, estudos de viabilidade, startups, tecnologia de IA e gestão empresarial.</p><a class="btn btn-primary form-action" data-patroai-sales-link="whatsapp" href="https://wa.me/5551989697605?text=Ol%C3%A1%2C%20PatroAI%21%20Gostaria%20de%20agendar%20uma%20demonstra%C3%A7%C3%A3o%20de%20plataforma%20multiag%C3%AAntica%20orquestrada%20e%20conhecer%20as%20possibilidades%20de%20integra%C3%A7%C3%A3o%20com%20os%20sistemas%20da%20minha%20empresa." target="_blank" rel="noopener noreferrer" data-p22="whatsappCTA">Solicitar demonstração pelo WhatsApp</a><p class="form-disclaimer" data-p22="whatsappNote">O WhatsApp será aberto para você confirmar o envio. Esta página não agenda automaticamente nem grava contatos no C01.</p></div><!-- R4: direct server submission remains excluded; manual channel only. -->
+<details class="r4-compose" data-r4-journey="contact">
+ <summary data-r4-text="contact">Apresentar meu projeto</summary>
+ <div class="r4-compose-body">
+  <label for="r4-contact-message" data-r4-text="message">Mensagem (edite se desejar)</label>
+  <textarea id="r4-contact-message" maxlength="800" rows="4" autocomplete="off" spellcheck="false">Olá, PatroAI! Gostaria de conversar sobre um projeto. Minha necessidade é: </textarea>
+  <p data-r4-text="hint">O texto fica somente nesta página até você copiar. Abra o WhatsApp e confirme o envio por lá. Não inclua dados sensíveis, documentos ou informações confidenciais.</p>
+  
+  <a href="#privacidade-lgpd" class="r4-privacy" data-r4-text="privacy">Privacidade e LGPD</a>
+  <div class="r4-compose-actions">
+   <button type="button" data-r4-copy disabled class="btn btn-primary" data-r4-text="copy">Copiar mensagem</button>
+   <a href="https://wa.me/5551989697605" target="_blank" rel="noopener noreferrer" class="btn btn-outline" data-r4-text="open">Abrir WhatsApp</a>
+  </div>
+  <p role="status" aria-live="polite" data-r4-status>Nenhum envio automático ou armazenamento pela landing.</p>
+ </div>
+</details>
 </div>
 </div>
 </section>
@@ -1807,7 +1871,7 @@ Centro Histórico · Porto Alegre, RS · Brasil<br/><small class="company-regist
 </div>
 <div class="footer-nav">
 <div class="footer-col"><b>Explore</b><a href="#solucoes">Soluções</a><a href="#metodo">Nosso método</a><a href="#central-agentes">Central de agentes</a></div>
-<div class="footer-col"><b>Conheça</b><a href="#governanca">Governança</a><a href="#institucional">Missão, visão e valores</a><a href="#contato">Apresentar meu projeto</a></div>
+<div class="footer-col"><b>Conheça</b><a href="#governanca">Governança</a><a href="#institucional">Missão, visão e valores</a><a href="#contato">Apresentar meu projeto</a><a href="#talentos" data-r4-text="nav">Carreiras</a></div>
 </div>
 </div>
 <div class="footer-bottom"><span>© 2026 Grupo PatroAI — Proposta visual para avaliação.</span><span>Prévia integrada ao contrato público B1.1/B1.2 · Sem deploy</span></div>
@@ -2511,5 +2575,41 @@ render();
  new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
  render();
 })();
-</script></body>
+</script><script id="r4-contact-talents-js">
+(()=>{'use strict';
+ const words = {"pt":{"nav":"Carreiras","eyebrow":"PatroAI · Carreiras e Consultoria","title":"Pessoas e especialistas que transformam tecnologia em resultados.","intro":"Queremos construir uma rede de profissionais que compartilham nosso compromisso com tecnologia responsável, excelência e resultados empresariais.","careerTitle":"Carreiras e colaboradores","careerText":"Profissionais de engenharia, produto, operações e relacionamento que desejam construir a próxima geração de soluções empresariais.","consultantTitle":"Consultores independentes","consultantText":"Especialistas de negócios e tecnologia para apoiar diagnóstico, implantação e adoção de soluções da PatroAI nas empresas, mediante seleção e autorização.","disclaimer":"A manifestação de interesse não cria conta, vínculo empregatício ou permissão de acesso. A seleção é realizada separadamente pela PatroAI.","career":"Apresentar candidatura","consultant":"Apresentar perfil de consultoria","contact":"Apresentar meu projeto","message":"Mensagem (edite se desejar)","hint":"O texto fica somente nesta página até você copiar. Abra o WhatsApp e confirme o envio por lá. Não inclua dados sensíveis, documentos ou informações confidenciais.","careerHint":"Solicite à equipe o canal autorizado para enviar seu currículo. Nenhum arquivo é enviado por esta página.","copy":"Copiar mensagem","open":"Abrir WhatsApp","copied":"Mensagem copiada. Cole no WhatsApp e confirme o envio.","manual":"Copie o texto selecionado manualmente, abra o WhatsApp e cole. Nenhum envio foi realizado.","privacy":"Privacidade e LGPD","status":"Nenhum envio automático ou armazenamento pela landing.","careerDraft":"Olá, PatroAI! Gostaria de conhecer as oportunidades de carreira. Minha área de atuação é: ","consultantDraft":"Olá, PatroAI! Gostaria de conhecer a possibilidade de atuar como consultor associado. Minha especialidade é: ","contactDraft":"Olá, PatroAI! Gostaria de conversar sobre um projeto. Minha necessidade é: "},"en":{"nav":"Careers","eyebrow":"PatroAI · Careers and Consulting","title":"People and specialists who turn technology into results.","intro":"We aim to build a network of professionals committed to responsible technology, excellence and business outcomes.","careerTitle":"Careers and team members","careerText":"Engineering, product, operations and relationship professionals who want to build the next generation of business solutions.","consultantTitle":"Independent consultants","consultantText":"Business and technology specialists supporting diagnosis, implementation and adoption of PatroAI solutions, subject to selection and authorization.","disclaimer":"Expressing interest does not create an account, employment relationship or access rights. PatroAI handles selection separately.","career":"Introduce your application","consultant":"Introduce your consulting profile","contact":"Introduce my project","message":"Message (edit if desired)","hint":"The text stays on this page until you copy it. Open WhatsApp and confirm sending there. Do not include sensitive data, documents or confidential information.","careerHint":"Ask the team for the authorized channel to submit your résumé. No file is sent through this page.","copy":"Copy message","open":"Open WhatsApp","copied":"Message copied. Paste it in WhatsApp and confirm sending.","manual":"Copy the selected text manually, open WhatsApp and paste. Nothing has been sent.","privacy":"Privacy and data protection","status":"No automatic sending or storage by the landing page.","careerDraft":"Hello, PatroAI! I would like to learn about career opportunities. My field is: ","consultantDraft":"Hello, PatroAI! I would like to explore joining as an associate consultant. My specialty is: ","contactDraft":"Hello, PatroAI! I would like to discuss a project. My business need is: "},"es":{"nav":"Carreras","eyebrow":"PatroAI · Carreras y Consultoría","title":"Personas y especialistas que convierten la tecnología en resultados.","intro":"Buscamos construir una red de profesionales comprometidos con la tecnología responsable, la excelencia y los resultados empresariales.","careerTitle":"Carreras y colaboradores","careerText":"Profesionales de ingeniería, producto, operaciones y relaciones que desean construir la próxima generación de soluciones empresariales.","consultantTitle":"Consultores independientes","consultantText":"Especialistas de negocios y tecnología para apoyar el diagnóstico, la implementación y la adopción de soluciones PatroAI, sujetos a selección y autorización.","disclaimer":"Manifestar interés no crea una cuenta, vínculo laboral ni permisos de acceso. PatroAI realiza la selección por separado.","career":"Presentar candidatura","consultant":"Presentar perfil de consultoría","contact":"Presentar mi proyecto","message":"Mensaje (edite si desea)","hint":"El texto permanece en esta página hasta que lo copie. Abra WhatsApp y confirme el envío allí. No incluya datos sensibles, documentos ni información confidencial.","careerHint":"Solicite al equipo el canal autorizado para enviar su currículum. Esta página no envía archivos.","copy":"Copiar mensaje","open":"Abrir WhatsApp","copied":"Mensaje copiado. Péguelo en WhatsApp y confirme el envío.","manual":"Copie el texto seleccionado manualmente, abra WhatsApp y péguelo. No se ha enviado nada.","privacy":"Privacidad y protección de datos","status":"Sin envío automático ni almacenamiento por parte de la página.","careerDraft":"¡Hola, PatroAI! Quisiera conocer las oportunidades profesionales. Mi área es: ","consultantDraft":"¡Hola, PatroAI! Quisiera explorar la posibilidad de ser consultor asociado. Mi especialidad es: ","contactDraft":"¡Hola, PatroAI! Quisiera conversar sobre un proyecto. Mi necesidad es: "}};
+ const locale=()=>{const k=(document.documentElement.lang||'pt').split('-')[0];return Object.hasOwn(words,k)?k:'pt'};
+ const groups=Array.from(document.querySelectorAll('[data-r4-journey]'));
+ const drafts=new WeakMap();
+ const statusKeys=new WeakMap();
+ function status(group,key){statusKeys.set(group,key);group.querySelector('[data-r4-status]').textContent=words[locale()][key];}
+ function render(){
+   const copy=words[locale()];
+   document.querySelectorAll('[data-r4-text]').forEach(el=>{const value=copy[el.dataset.r4Text];if(value)el.textContent=value;});
+   groups.forEach(group=>{
+     const field=group.querySelector('textarea'), next=copy[group.dataset.r4Journey+'Draft'];
+     const previous=drafts.has(group)?drafts.get(group):words.pt[group.dataset.r4Journey+'Draft'];
+     if(field.value===previous)field.value=next;
+     drafts.set(group,next);
+     status(group,statusKeys.get(group)||'status');
+   });
+ }
+ groups.forEach(group=>{
+   const field=group.querySelector('textarea'), button=group.querySelector('[data-r4-copy]');
+   button.disabled=false;
+   button.addEventListener('click',async()=>{
+     const value=field.value.trim();
+     try{
+       if(!value || !navigator.clipboard || typeof navigator.clipboard.writeText!=='function')throw new Error('manual');
+       await navigator.clipboard.writeText(value);
+       status(group,'copied');
+     }catch(_){field.focus();field.select();status(group,'manual');}
+   });
+   field.addEventListener('input',()=>status(group,'status'));
+ });
+ new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+ render();
+})();
+</script>
+</body>
 </html>
