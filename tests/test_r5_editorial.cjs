@@ -1,0 +1,21 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+test('release candidate removes obsolete global preview notices, not substantive warnings', () => {
+  assert.doesNotMatch(html, /<div class="top-note">/);
+  assert.match(html, /<span class="pill">Atendimento comercial<\/span>/);
+  assert.match(html, /<div class="footer-bottom"><span>[^<]+<\/span><span>Executive Intelligence/);
+  assert.match(html, /textTranslations.en\["Atendimento comercial"\] = "Business inquiries"/);
+  assert.match(html, /textTranslations.es\["Atendimento comercial"\] = "Atenci.n comercial"/u);
+  assert.match(html, /content="noindex, nofollow"/);
+  assert.match(html, /id="privacidade-lgpd"/);
+  assert.match(html, /data-v10="privacyP1"/);
+  assert.match(html, /data-v10="privacyP4"/);
+  assert.match(html, /privacyCaveat/);
+  assert.match(html, /Nenhum sistema foi auditado nesta pr.via/u);
+  assert.match(html, /id="r4-contact-talents-js"/);
+  assert.equal((html.match(/<form\b/gi)||[]).length,0);
+  assert.match(html, /pa-consent/);
+});
