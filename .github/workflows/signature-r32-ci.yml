@@ -1,0 +1,72 @@
+name: PATROAI Signature R3.2 - Certification
+
+on:
+  push:
+    branches:
+      - feat/patroai-signature-r32
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-r32:
+    name: Integrity, frontend tests and Docker build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Verify frozen product and tracked inventory
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import subprocess
+
+          manifest = Path("SHA256SUMS.txt").read_bytes()
+          assert hashlib.sha256(manifest).hexdigest() == "4372db6ffbcde74c043b0ff209278a9399579cd12d61f77890ab20e255d3324c", "Frozen manifest mismatch"
+          entries = dict((name, digest) for digest, name in (line.split(maxsplit=1) for line in manifest.decode().splitlines()))
+          assert len(entries) == 58
+          expected = set(entries) | {"SHA256SUMS.txt", ".github/workflows/signature-r32-ci.yml"}
+          actual = set(subprocess.check_output(["git", "ls-files", "-z"]).decode().rstrip(chr(0)).split(chr(0)))
+          assert actual == expected, f"Unexpected: {actual-expected}; missing: {expected-actual}"
+          for name, digest in entries.items():
+              path = Path(name)
+              assert path.is_file() and not path.is_symlink(), name
+              assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, name
+          print("PASS: 59 frozen product files + 1 CI workflow")
+          PY
+
+      - name: Run Node contract tests
+        shell: bash
+        run: node --test tests/test_*.cjs
+
+      - name: Install focused Python test dependencies
+        run: python -m pip install "pytest>=8,<10" "Pillow>=10,<13"
+
+      - name: Run focused Python frontend tests
+        run: >-
+          python -m pytest -q -ra
+          tests/test_public_seo_build.py
+          tests/test_decodificacao_imagens.py
+          tests/test_signature_visual_r1.py
+          tests/test_signature_cinematic_r2.py
+          tests/test_signature_experience_r3.py
+          tests/test_signature_refinement_r31.py
+
+      - name: Build Docker image locally (no push or deploy)
+        run: docker build --tag patroai-signature-r32:ci .
