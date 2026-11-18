@@ -12,4 +12,18 @@ COPY dashboard.html /usr/share/nginx/html/dashboard.html
 COPY dashboard.js /usr/share/nginx/html/dashboard.js
 COPY dashboard.css /usr/share/nginx/html/dashboard.css
 COPY default.conf.template /etc/nginx/templates/default.conf.template
+COPY signature-ceo.webp /usr/share/nginx/html/signature-ceo.webp
+COPY signature-cto.webp /usr/share/nginx/html/signature-cto.webp
+COPY signature-business.webp /usr/share/nginx/html/signature-business.webp
+COPY signature-agents.webp /usr/share/nginx/html/signature-agents.webp
+COPY signature-venture.webp /usr/share/nginx/html/signature-venture.webp
+COPY signature-governance.webp /usr/share/nginx/html/signature-governance.webp
+COPY signature-command.webp /usr/share/nginx/html/signature-command.webp
+COPY signature-ceo-640.webp /usr/share/nginx/html/signature-ceo-640.webp
+COPY signature-cto-640.webp /usr/share/nginx/html/signature-cto-640.webp
+COPY signature-business-640.webp /usr/share/nginx/html/signature-business-640.webp
+COPY signature-agents-640.webp /usr/share/nginx/html/signature-agents-640.webp
+COPY signature-venture-640.webp /usr/share/nginx/html/signature-venture-640.webp
+COPY signature-governance-640.webp /usr/share/nginx/html/signature-governance-640.webp
+COPY signature-hero-atmosphere.webp /usr/share/nginx/html/signature-hero-atmosphere.webp
 EXPOSE 8080

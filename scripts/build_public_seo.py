@@ -23,6 +23,20 @@ ASSETS = [
     "dashboard.html",
     "dashboard.js",
     "dashboard.css",
+    "signature-ceo.webp",
+    "signature-ceo-640.webp",
+    "signature-cto.webp",
+    "signature-cto-640.webp",
+    "signature-business.webp",
+    "signature-business-640.webp",
+    "signature-agents.webp",
+    "signature-agents-640.webp",
+    "signature-venture.webp",
+    "signature-venture-640.webp",
+    "signature-governance.webp",
+    "signature-governance-640.webp",
+    "signature-command.webp",
+    "signature-hero-atmosphere.webp",
 ]
 PROHIBITED_HOST_PARTS = ("localhost", "127.0.0.1", "staging", "preview", ".local")
 
